@@ -66,8 +66,9 @@ def channel_logger(bot, update):
     text_date = update.message.date
     username = update.message.from_user.username
     channel = update.message.chat.title
+    room = update.message.chat.id
     output = '@{} has said '.format(username)
-    user.check_user_exist(id, username)
+    user.check_user_exist(id, username, room)
     for word in words:
         lc_text = text.lower()
         if word in text.lower():
@@ -177,6 +178,8 @@ def main():
     dp.add_handler(CommandHandler("remindme", util.remind))
     dp.add_handler(CommandHandler("remind", util.remind))
     dp.add_handler(CommandHandler("rem", util.remind))
+    dp.add_handler(CommandHandler("priv", user.get_priv))
+    dp.add_handler(CommandHandler("adduser", user.update_user_priv))
     #dp.add_handler(CommandHandler("restart", restart_git))
 
     # on noncommand i.e message - echo the message on Telegram
