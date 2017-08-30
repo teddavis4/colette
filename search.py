@@ -22,7 +22,6 @@ class Search:
         result = search_results[0]
         bot.sendMessage(update.message.chat_id, text=result.link)
 
-    @auth.needadmin
     def get_stock(self, bot, update):
         """ Get stock quotes """
         line_s = update.message.text.split()
