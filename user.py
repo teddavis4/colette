@@ -2,6 +2,10 @@
 
 import sqlite3
 from telegram.ext.dispatcher import run_async
+from auth import Auth
+
+TEST=True
+auth = Auth(testing=TEST)
 
 class User:
     def __init__(self, db='quipper', testing=False):
@@ -12,7 +16,6 @@ class User:
         if testing:
             self.users_table += '_test'
             self.privileges_table += '_test'
-
 
     def check_user_exist(self, id, username, room=None, role="user"):
         with sqlite3.connect('quipper') as conn:
@@ -51,19 +54,16 @@ class User:
                 text=self.get_user_privilege(update.message.from_user.id,
                     update.message.chat.id))
 
+    @auth.needadmin
     def update_user_priv(self, bot, update):
         """ Update a users privileges in a room """
-        room = update.message.chat.id
-        caller = update.message.from_user.id
-        username = update.message.text.split(' ')[1].strip('@')
-        role = update.message.text.split(' ')[2]
-        if role != "admin": role = 'user'
-        db = self.users_table
-        if self.get_user_privilege(caller, room) != "admin":
-            bot.sendMessage(update.message.chat_id, text="You do not have that"
-                    " privilege")
-            return
         try: 
+            room = update.message.chat.id
+            caller = update.message.from_user.id
+            username = update.message.text.split(' ')[1].strip('@')
+            role = update.message.text.split(' ')[2]
+            if role != "admin": role = 'user'
+            db = self.users_table
             with sqlite3.connect('quipper') as conn:
                 c = conn.cursor()
                 c.execute("update {} set role=? where username=? and"
@@ -71,29 +71,3 @@ class User:
         except Exception as e:
             bot.sendMessage(update.message.chat_id, text=e)
 
-    def get_user_privilege(self, user, room):
-        """ Check if a user has privileges in a room """
-        db = self.users_table
-        if user == 296246016:
-            return 'admin'
-        try:
-            with sqlite3.connect('quipper') as conn:
-                c = conn.cursor()
-                c.execute("select id,room,role,username from {}".format(db))
-                users = c.fetchall()
-                # Room
-                # -Role
-                # --User
-                user_list = {}
-                for id, room, role, u in users:
-                    if str(id) == str(user):
-                        return role
-                return 'user'
-#                    if not user_list.get(room, None):
-#                        user_list[room] = {}
-#                    if not user_list[room].get(role, None):
-#                        user_list[room][role] = []
-#                    user_list[room][role].append(u)
-#                return user_list
-        except Exception as e:
-            return "I failed to check user privileges\n{}".format(repr(e))

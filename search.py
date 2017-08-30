@@ -7,6 +7,11 @@ import requests
 from googlefinance import getQuotes
 from google import google
 
+from auth import Auth
+
+TEST=True
+auth = Auth(testing=TEST)
+
 class Search:
     def __init__(self, testing=False):
         """ Do searches for things (google, stocks, images, etc) """
@@ -17,6 +22,7 @@ class Search:
         result = search_results[0]
         bot.sendMessage(update.message.chat_id, text=result.link)
 
+    @auth.needadmin
     def get_stock(self, bot, update):
         """ Get stock quotes """
         line_s = update.message.text.split()
