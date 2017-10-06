@@ -4,7 +4,7 @@ import sqlite3
 from telegram.ext.dispatcher import run_async
 import urllib.parse
 import requests
-from googlefinance import getQuotes
+from yahoo_finance import Share
 from google import google
 
 class Search:
@@ -21,12 +21,11 @@ class Search:
         """ Get stock quotes """
         line_s = update.message.text.split()
         ticker = line_s[1].upper()
-        stock = getQuotes(ticker)
-        last_price = stock[0]["LastTradePrice"]
-        last_time = stock[0]["LastTradeDateTimeLong"]
-        div = stock[0].get("Dividend")
-        index = stock[0]["Index"]
-        bot.sendMessage(update.message.chat_id, "{{{0}}}[{1}] ${2} @{3} ({4})".format(index, ticker,
+        yahoo = Share(ticker.upper())
+        last_price = yahoo.get_price()
+        last_time = yahoo.get_trade_datetime()
+        div = yahoo.get_dividend_yield()
+        bot.sendMessage(update.message.chat_id, "[{0}] ${1} @{2} ({3})".format(ticker,
             last_price, last_time, div))
 
     def search(self, bot, update):

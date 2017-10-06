@@ -25,7 +25,7 @@ class User:
                         ' ?)'.format(self.users_table), (id, username))
             elif user[1] != username:
                 c.execute('update {} set username=? where'
-                        ' id=?'.foramt(self.users_table), (username, id))
+                        ' id=?'.format(self.users_table), (username, id))
 
     def register(self, bot, update):
         userID = update.message.from_user['id']
