@@ -175,6 +175,8 @@ def main():
     dp.add_handler(CommandHandler("git", quip.get_pikjur))
     dp.add_handler(CommandHandler("stock", search.get_stock))
     dp.add_handler(CommandHandler("remindme", util.remind))
+    dp.add_handler(CommandHandler("remind", util.remind))
+    dp.add_handler(CommandHandler("rem", util.remind))
     #dp.add_handler(CommandHandler("restart", restart_git))
 
     # on noncommand i.e message - echo the message on Telegram
