@@ -21,6 +21,7 @@ import subprocess
 import string
 from telegram.ext.dispatcher import run_async
 from quip import Quip
+from util import Util
 from user import User
 from search import Search
 
@@ -138,6 +139,7 @@ def main():
     global words
 
     quip = Quip(user, testing=TEST)
+    util = Util()
     search = Search()
 
     words = ['gay', 'something something', 'nigger', 'i mean', 'guttersnipe',
@@ -172,6 +174,9 @@ def main():
     dp.add_handler(CommandHandler("get", quip.get_pikjur))
     dp.add_handler(CommandHandler("git", quip.get_pikjur))
     dp.add_handler(CommandHandler("stock", search.get_stock))
+    dp.add_handler(CommandHandler("remindme", util.remind))
+    dp.add_handler(CommandHandler("remind", util.remind))
+    dp.add_handler(CommandHandler("rem", util.remind))
     #dp.add_handler(CommandHandler("restart", restart_git))
 
     # on noncommand i.e message - echo the message on Telegram
