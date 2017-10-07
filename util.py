@@ -10,7 +10,7 @@ import traceback
 class Util:
     def __init__(self, testing=False):
         """Util functions"""
-        self.executor = ThreadPoolExecutor(max_workers=5)
+        self.executor = ThreadPoolExecutor(max_workers=500)
 
     def _reminder(self, sendMessage, chat_id, text, text_date, user, future_date):
         """Reminder function; meant to run in a thread this function will
