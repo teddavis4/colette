@@ -19,7 +19,7 @@ class Util:
         try:
             seconds = parse_duration("PT"+future_date.upper()).seconds
             future_date = time.time() + seconds
-            
+
             while time.time() < future_date:
                 time.sleep(0.15)
             remind_text = "@{0} Here is your reminder:\n\n{1}".format(user, text)
@@ -40,3 +40,5 @@ class Util:
         chat_id = update.message.chat_id
         self.executor.submit(self._reminder, bot.sendMessage, chat_id, text,
                 text_date, username, future_date)
+        bot.sendMessage(chat_id, text="Your reminder has been set for {} from now".format(future_date))
+
