@@ -29,7 +29,7 @@ class User:
                             room, role))
             elif user[1] != username:
                 c.execute('update {} set username=? where'
-                        ' id=? and room=?'.foramt(self.users_table), (username,
+                        ' id=? and room=?'.format(self.users_table), (username,
                             id, room))
 
     def register(self, bot, update):
@@ -51,7 +51,7 @@ class User:
     def get_priv(self, bot, update):
         """ Print user privileges """
         bot.sendMessage(update.message.chat_id,
-                text=self.get_user_privilege(update.message.from_user.id,
+                text=auth.get_user_privilege(update.message.from_user.id,
                     update.message.chat.id))
 
     @auth.needadmin

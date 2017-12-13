@@ -23,7 +23,7 @@ class Quip:
             db = self.quotes_table
             if photo:
                 db = self.photos_table
-            tag = "%%%{0}%%%".format(tag)
+            tag = "%%% {0} %%%".format(tag)
             print("select * from {0} where tag like {1} and room={2}".format(db,
                 tag, room))
             c.execute('select * from {} where tag like ? and room=?'.format(db),
@@ -55,7 +55,7 @@ class Quip:
     def search_quote(self, search_str, room, photo=False):
         """Search for a quote
         """
-        s_str = "%%%{0}%%%".format(search_str)
+        s_str = "%%% {0} %%%".format(search_str)
         with sqlite3.connect('quipper') as conn:
             db = self.quotes_table
             if photo:
