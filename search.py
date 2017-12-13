@@ -7,6 +7,11 @@ import requests
 from yahoo_finance import Share
 from google import google
 
+from auth import Auth
+
+TEST=True
+auth = Auth(testing=TEST)
+
 class Search:
     def __init__(self, testing=False):
         """ Do searches for things (google, stocks, images, etc) """
