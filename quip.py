@@ -30,8 +30,9 @@ class Quip:
                     (tag, room))
             quote = c.fetchone()
             if photo:
+                caption = quote[5]
                 photo_id = quote[4]
-                return photo_id
+                return caption, photo_id
         return self.compile_quote(quote, user)
 
     def search_quote_by_id(self, id, room, photo=False):
@@ -46,8 +47,9 @@ class Quip:
                 room))
             quote = c.fetchone()
             if photo:
+                caption = quote[5]
                 photo_id = quote[4]
-                return photo_id
+                return caption, photo_id
         return self.compile_quote(quote)
 
     def search_quote(self, search_str, room, photo=False):
@@ -63,8 +65,9 @@ class Quip:
                     ' limit 1'.format(db), (s_str, room))
             quote = c.fetchone()
             if photo:
+                caption = quote[5]
                 photo_id = quote[4]
-                return photo_id
+                return caption, photo_id
         return self.compile_quote(quote)
 
     def get_random_quote(self, room, user=None, photo=False):
@@ -78,8 +81,9 @@ class Quip:
             c.execute('select * from {} where room=?'.format(db), (room,))
             quote = random.choice(c.fetchall())
             if photo:
+                caption = quote[5]
                 photo_id = quote[4]
-                return photo_id
+                return caption, photo_id
         return self.compile_quote(quote, user)
 
     def delete_quote_by_id(self, bot, update):
@@ -118,8 +122,9 @@ class Quip:
                     ' desc'.format(db) , (id, room))
             quote = random.choice(c.fetchall())
             if photo:
+                caption = quote[5]
                 photo_id = quote[4]
-                return photo_id
+                return caption, photo_id
         return self.compile_quote(quote, user)
 
     def get_last_quote(self, user, room, photo=False):
@@ -136,8 +141,9 @@ class Quip:
                     ' limit 1'.format(db), (id, room))
             quote = c.fetchone()
             if photo:
+                caption = quote[5]
                 photo_id = quote[4]
-                return photo_id
+                return caption, photo_id
         return self.compile_quote(quote, user)
 
     def compile_quote(self, quote, user=None):
@@ -148,7 +154,7 @@ class Quip:
                 c.execute('select * from users where id=?', (quote[2],))
                 user = c.fetchone()[1]
         quote_date = quote[1]
-        quote_text = quote[3]
+        quote_text = quote[5]
         return "[{0}]At {1} @{2} said ``{3}''".format(quote_id, quote_date, user,
                 quote_text)
 
@@ -242,26 +248,32 @@ class Quip:
         line_s = update.message.text.split()
 
         if len(line_s)<=1:
-            bot.sendPhoto(update.message.chat_id,
-                    photo=self.get_random_quote(room, photo=True))
+            photo = self.get_random_quote(room, photo=True)
+            bot.sendPhoto(update.message.chat_id, photo=photo[1],
+                    caption=photo[0])
         elif line_s[1] == '-l':
             user = line_s[2].strip('@').strip()
-            bot.sendPhoto(update.message.chat_id, photo=self.get_last_quote(user,
-                room, photo=True))
+            photo = self.get_last_quote(user, room, photo=True)
+            bot.sendPhoto(update.message.chat_id, photo=photo[1],
+                    caption=photo[0])
         elif line_s[1] == '-s':
             search_str = ' '.join(line_s[2:])
-            bot.sendPhoto(update.message.chat_id, photo=self.search_quote(search_str,
-                room, photo=True))
+            photo = self.search_quote(search_str, room, photo=True)
+            bot.sendPhoto(update.message.chat_id, photo=photo[1],
+                    caption=photo[0])
         elif line_s[1] == '-i':
             id = line_s[2]
-            bot.sendPhoto(update.message.chat_id, photo=self.search_quote_by_id(id,
-                room, photo=True))
+            photo = self.search_quote_by_id(id, room, photo=True)
+            bot.sendPhoto(update.message.chat_id, photo=photo[1],
+                    caption=photo[0])
         elif line_s[1] == '-t':
             tag = ' '.join(line_s[2:])
-            bot.sendPhoto(update.message.chat_id, photo=self.search_quote_by_tag(tag,
-                room, photo=True))
+            photo = self.search_quote_by_tag(tag, room, photo=True)
+            bot.sendPhoto(update.message.chat_id, photo=photo[1],
+                    caption=photo[0])
         else:
             user = line_s[1].strip('@').strip()
+            photo = self.get_random_user_quote(user, room, photo=True)
             bot.sendPhoto(update.message.chat_id,
-                    photo=self.get_random_user_quote(user, room, photo=True))
+                    photo=photo[1], caption=photo[0])
 
