@@ -154,7 +154,7 @@ class Quip:
                 c.execute('select * from users where id=?', (quote[2],))
                 user = c.fetchone()[1]
         quote_date = quote[1]
-        quote_text = quote[5]
+        quote_text = quote[3]
         return "[{0}]At {1} @{2} said ``{3}''".format(quote_id, quote_date, user,
                 quote_text)
 
