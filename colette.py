@@ -25,7 +25,7 @@ from util import Util
 from user import User
 from search import Search
 
-TEST=True
+TEST=False
 
 user = User(testing=TEST)
 
