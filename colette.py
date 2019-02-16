@@ -68,24 +68,24 @@ def channel_logger(bot, update):
     channel = update.message.chat.title
     output = '@{} has said '.format(username)
     user.check_user_exist(id, username)
-    for word in words:
-        lc_text = text.lower()
-        if word in text.lower():
-            c = len(lc_text.split(word))-1
-            # Reply with the count of gays.
-            if word not in buzzwords.keys():
-                buzzwords[word] = {}
-            gaycount = buzzwords[word].setdefault(username, 0) + c
-            if gaycount == 1:
-                time_or_times = 'time'
-            buzzwords[word][username] += c
-            if 'time' in output:
-                output += "; '{}' {} {}".format(word, gaycount, time_or_times)
-            else:
-                output += "'{}' {} {}".format(word, gaycount, time_or_times)
-    if 'time' in output:
-        bot.sendMessage(update.message.chat_id, text="{}"
-                " this session".format(output))
+    #for word in words:
+    #    lc_text = text.lower()
+    #    if word in text.lower():
+    #        c = len(lc_text.split(word))-1
+    #        # Reply with the count of gays.
+    #        if word not in buzzwords.keys():
+    #            buzzwords[word] = {}
+    #        gaycount = buzzwords[word].setdefault(username, 0) + c
+    #        if gaycount == 1:
+    #            time_or_times = 'time'
+    #        buzzwords[word][username] += c
+    #        if 'time' in output:
+    #            output += "; '{}' {} {}".format(word, gaycount, time_or_times)
+    #        else:
+    #            output += "'{}' {} {}".format(word, gaycount, time_or_times)
+    #if 'time' in output:
+    #    bot.sendMessage(update.message.chat_id, text="{}"
+    #            " this session".format(output))
     with open('telegram_log', 'a') as f: 
         f.write('{0} ({1}) [{2}]: {3}\n'.format(text_date, channel, username,
             text))
@@ -177,6 +177,9 @@ def main():
     dp.add_handler(CommandHandler("remindme", util.remind))
     dp.add_handler(CommandHandler("remind", util.remind))
     dp.add_handler(CommandHandler("rem", util.remind))
+    dp.add_handler(CommandHandler("free_me", util.free_me))
+    dp.add_handler(CommandHandler("spam_me", util.spam_me))
+    dp.add_handler(CommandHandler("everyone", util.everyone))
     #dp.add_handler(CommandHandler("restart", restart_git))
 
     # on noncommand i.e message - echo the message on Telegram
