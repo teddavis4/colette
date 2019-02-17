@@ -19,7 +19,7 @@ from user import User
 from games import Games
 from search import Search
 
-TEST = True
+TEST = False
 
 user = User(testing=TEST)
 
