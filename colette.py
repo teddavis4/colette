@@ -16,6 +16,7 @@ from telegram.ext.dispatcher import run_async
 from quip import Quip
 from util import Util
 from user import User
+from games import Games
 from search import Search
 
 TEST = True
@@ -61,11 +62,14 @@ def channel_logger(bot, update):
     # time_or_times = 'times'
     global buzzwords
     global words
+    games = Games()
     id = update.message.from_user.id
     text = update.message.text
     text_date = update.message.date
     username = update.message.from_user.username
     channel = update.message.chat.title
+    if text[0:2] == 'e ' or text[0:2] == 'E ':
+        return games.emote(bot, update)
     # output = '@{} has said '.format(username)
     user.check_user_exist(id, username)
     # for word in words:
@@ -151,6 +155,7 @@ def main():
 
     quip = Quip(user, testing=TEST)
     util = Util()
+
     search = Search()
 
     words = ['gay', 'something something', 'nigger', 'i mean', 'guttersnipe',
