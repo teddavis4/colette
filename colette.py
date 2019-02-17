@@ -86,7 +86,7 @@ def channel_logger(bot, update):
     #if 'time' in output:
     #    bot.sendMessage(update.message.chat_id, text="{}"
     #            " this session".format(output))
-    with open('telegram_log', 'a') as f: 
+    with open('telegram_log', 'a') as f:
         f.write('{0} ({1}) [{2}]: {3}\n'.format(text_date, channel, username,
             text))
 
@@ -102,7 +102,7 @@ def email(bot, update):
         c.execute("select * from users where telegram_name=?", (userID, ))
         email_addr = c.fetchone()[1]
     uuid = update.message.text.split()[1]
-    mail_output = bemail.find_book(uuid, True, str(email_addr)) 
+    mail_output = bemail.find_book(uuid, True, str(email_addr))
     if not mail_output or mail_output == "null":
         bot.sendMessage(update.message.chat_id, text="I emailed your book to"
                 " you")
@@ -180,6 +180,7 @@ def main():
     dp.add_handler(CommandHandler("free_me", util.free_me))
     dp.add_handler(CommandHandler("spam_me", util.spam_me))
     dp.add_handler(CommandHandler("everyone", util.everyone))
+    dp.add_handler(CommandHandler("feedback", util.feedback))
     #dp.add_handler(CommandHandler("restart", restart_git))
 
     # on noncommand i.e message - echo the message on Telegram

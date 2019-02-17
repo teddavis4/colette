@@ -1,10 +1,9 @@
 #!/usr/bin/env python
+"""Utilities for colette."""
 
-from telegram.ext.dispatcher import run_async
 from concurrent.futures import ThreadPoolExecutor
 import time
 from isodate import parse_duration
-import string
 import traceback
 import sqlite3
 
@@ -29,24 +28,21 @@ class Util:
                 user, text)
             print(remind_text)
             sendMessage(chat_id, text=remind_text)
-        except Exception as e:
+        except Exception:
             traceback.print_exc()
 
     def remind(self, bot, update):
         """Function to set a reminder in the future"""
-        id = update.message.from_user.id
         text = update.message.text
         future_date = text.split(" ", 2)[1]
         text = text.split(" ", 2)[2]
         text_date = update.message.date
         username = update.message.from_user.username
-        channel = update.message.chat.title
         chat_id = update.message.chat_id
         self.executor.submit(self._reminder, bot.sendMessage, chat_id, text,
                              text_date, username, future_date)
-        bot.sendMessage(
-            chat_id,
-            text="Your reminder has been set for {} from now".format(future_date))
+        bot.sendMessage(chat_id, text="Your reminder has been set for {} from "
+                        "now".format(future_date))
 
     def everyone(self, bot, update):
         """Message everyone in the room."""
@@ -89,3 +85,16 @@ class Util:
                       (username, room))
             conn.commit()
         bot.sendMessage(room, text="you have reached nirvana")
+
+    def feedback(self, bot, update):
+        """Give the author feedback."""
+        username = update.message.from_user.username
+        channel = update.message.chat.title
+        room = update.message.chat.id
+        feedback = ' '.join(update.message.text.split()[1:])
+        with sqlite3.connect('feedback') as conn:
+            c = conn.cursor()
+            c.execute("insert into feedback (username, room, feedback) values "
+                      "(?, ?, ?)", (username, channel, feedback))
+            conn.commit()
+        bot.sendMessage(room, text="Your feedback was received")
