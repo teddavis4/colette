@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Colette."""
 
 
 from uuid import uuid4
@@ -8,16 +9,8 @@ import re
 from telegram import InlineQueryResultArticle, ParseMode, \
     InputTextMessageContent
 from telegram.ext import (Updater, InlineQueryHandler, CommandHandler, Filters,
-        MessageHandler)
+                          MessageHandler)
 import logging
-import sys
-import requests
-import urllib.parse
-#from bsearch import find_book
-#import bemail
-import sqlite3
-import random
-import subprocess
 import string
 from telegram.ext.dispatcher import run_async
 from quip import Quip
@@ -25,40 +18,47 @@ from util import Util
 from user import User
 from search import Search
 
-TEST=False
+TEST = True
 
 user = User(testing=TEST)
 
 # Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - '
+                    '%(message)s', level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
+
+
 def start(bot, update):
+    """Ensure bot is started."""
     bot.sendMessage(update.message.chat_id, text='Hi!')
 
+
 def help(bot, update):
+    """Print help."""
     with open('help_message') as f:
         bot.sendMessage(update.message.chat_id, text=f.read())
 
+
 @run_async
 def math(bot, update):
+    """Do math."""
     text = update.message.text.split()
     try:
-        if len([g for g in text[1] if g in string.ascii_letters])>0:
+        if len([g for g in text[1] if g in string.ascii_letters]) > 0:
             raise
         math_result = eval(text[1])
-    except Exception as e:
+    except Exception:
         math_result = 0
     bot.sendMessage(update.message.chat_id, text=math_result)
 
+
 def channel_logger(bot, update):
-    """Quip store
-    """
-    time_or_times = 'times'
+    """Quip store."""
+    # time_or_times = 'times'
     global buzzwords
     global words
     id = update.message.from_user.id
@@ -66,9 +66,9 @@ def channel_logger(bot, update):
     text_date = update.message.date
     username = update.message.from_user.username
     channel = update.message.chat.title
-    output = '@{} has said '.format(username)
+    # output = '@{} has said '.format(username)
     user.check_user_exist(id, username)
-    #for word in words:
+    # for word in words:
     #    lc_text = text.lower()
     #    if word in text.lower():
     #        c = len(lc_text.split(word))-1
@@ -83,58 +83,69 @@ def channel_logger(bot, update):
     #            output += "; '{}' {} {}".format(word, gaycount, time_or_times)
     #        else:
     #            output += "'{}' {} {}".format(word, gaycount, time_or_times)
-    #if 'time' in output:
+    # if 'time' in output:
     #    bot.sendMessage(update.message.chat_id, text="{}"
     #            " this session".format(output))
     with open('telegram_log', 'a') as f:
         f.write('{0} ({1}) [{2}]: {3}\n'.format(text_date, channel, username,
-            text))
+                                                text))
+
 
 def escape_markdown(text):
-    """Helper function to escape telegram markup symbols"""
-    escape_chars = '\*_`\['
+    """Escape telegram markup symbols."""
+    escape_chars = r'\*_`\['
     return re.sub(r'([%s])' % escape_chars, r'\\\1', text)
 
-def email(bot, update):
-    userID = update.message.from_user['id']
-    with sqlite3.connect('books') as conn:
-        c = conn.cursor()
-        c.execute("select * from users where telegram_name=?", (userID, ))
-        email_addr = c.fetchone()[1]
-    uuid = update.message.text.split()[1]
-    mail_output = bemail.find_book(uuid, True, str(email_addr))
-    if not mail_output or mail_output == "null":
-        bot.sendMessage(update.message.chat_id, text="I emailed your book to"
-                " you")
 
 def inlinequery(bot, update):
+    """Do inlinequery."""
     query = update.inline_query.query
     results = list()
 
-    results.append(InlineQueryResultArticle(id=uuid4(), title="Caps",
-        input_message_content=InputTextMessageContent( query.upper())))
+    results.append(
+        InlineQueryResultArticle(
+            id=uuid4(),
+            title="Caps",
+            input_message_content=InputTextMessageContent(
+                query.upper())))
 
-    results.append(InlineQueryResultArticle(id=uuid4(), title="Bold",
-        input_message_content=InputTextMessageContent( "*%s*" %
-            escape_markdown(query), parse_mode=ParseMode.MARKDOWN)))
+    results.append(
+        InlineQueryResultArticle(
+            id=uuid4(),
+            title="Bold",
+            input_message_content=InputTextMessageContent(
+                "*%s*" %
+                escape_markdown(query),
+                parse_mode=ParseMode.MARKDOWN)))
 
-    results.append(InlineQueryResultArticle(id=uuid4(), title="Italic",
-        input_message_content=InputTextMessageContent( "_%s_" %
-            escape_markdown(query), parse_mode=ParseMode.MARKDOWN)))
+    results.append(
+        InlineQueryResultArticle(
+            id=uuid4(),
+            title="Italic",
+            input_message_content=InputTextMessageContent(
+                "_%s_" %
+                escape_markdown(query),
+                parse_mode=ParseMode.MARKDOWN)))
 
     bot.answerInlineQuery(update.inline_query.id, results=results)
 
+
 def error(bot, update, error):
+    """Output errors."""
     logger.warn('Update "%s" caused error "%s"' % (update, error))
 
+
 def read_config(testing=False):
+    """Read configuration."""
     config = 'colette_config'
     if testing:
         config += '_test'
     with open(config, 'r') as f:
         return f.read().strip()
 
+
 def main():
+    """Main."""
     global buzzwords
     global words
 
@@ -143,7 +154,7 @@ def main():
     search = Search()
 
     words = ['gay', 'something something', 'nigger', 'i mean', 'guttersnipe',
-            'jesus edwin', '😢']
+             'jesus edwin', '😢']
     buzzwords = {}
     # Create the Updater and pass it your bot's token.
     token = read_config(testing=TEST)
@@ -155,13 +166,13 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
-    #dp.add_handler(CommandHandler("register", register))
-    #dp.add_handler(CommandHandler("bemail", email))
-    #dp.add_handler(CommandHandler("bsearch", search))
+    # dp.add_handler(CommandHandler("register", register))
+    # dp.add_handler(CommandHandler("bemail", email))
+    # dp.add_handler(CommandHandler("bsearch", search))
     dp.add_handler(CommandHandler("google", search.get_ifl_link,
-        allow_edited=True))
+                                  allow_edited=True))
     dp.add_handler(CommandHandler("Google", search.get_ifl_link,
-        allow_edited=True))
+                                  allow_edited=True))
     dp.add_handler(CommandHandler("quote", quip.quipper))
     dp.add_handler(CommandHandler("quip", quip.quipper))
     dp.add_handler(CommandHandler("getq", quip.get_quote))
@@ -181,7 +192,7 @@ def main():
     dp.add_handler(CommandHandler("spam_me", util.spam_me))
     dp.add_handler(CommandHandler("everyone", util.everyone))
     dp.add_handler(CommandHandler("feedback", util.feedback))
-    #dp.add_handler(CommandHandler("restart", restart_git))
+    # dp.add_handler(CommandHandler("restart", restart_git))
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(InlineQueryHandler(inlinequery))
@@ -190,7 +201,7 @@ def main():
     dp.add_error_handler(error)
 
     # Add message handler for quips!
-    #dp.add_handler(MessageHandler([Filters.text], quipper))
+    # dp.add_handler(MessageHandler([Filters.text], quipper))
     dp.add_handler(MessageHandler(Filters.text, channel_logger))
 
     # Start the Bot

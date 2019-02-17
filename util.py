@@ -9,15 +9,20 @@ import sqlite3
 
 
 class Util:
+    """Colette utilities."""
+
     def __init__(self, testing=False):
-        """Util functions"""
+        """Util functions."""
         self.executor = ThreadPoolExecutor(max_workers=500)
 
     def _reminder(self, sendMessage, chat_id, text,
                   text_date, user, future_date):
-        """Reminder function; meant to run in a thread this function will
-        monitor the current time until future_date is reached at which point
-        the reminder will be relayed to the user"""
+        """Reminder function.
+
+        meant to run in a thread this function will monitor the current time
+        until future_date is reached at which point the reminder will be
+        relayed to the user.
+        """
         try:
             seconds = parse_duration("PT" + future_date.upper()).seconds
             future_date = time.time() + seconds
@@ -32,7 +37,7 @@ class Util:
             traceback.print_exc()
 
     def remind(self, bot, update):
-        """Function to set a reminder in the future"""
+        """Set a reminder in the future."""
         text = update.message.text
         future_date = text.split(" ", 2)[1]
         text = text.split(" ", 2)[2]

@@ -1,12 +1,15 @@
 #!/usr/bin/env python
+"""Capture quips."""
 
 import sqlite3
-from telegram.ext.dispatcher import run_async
 import random
 
+
 class Quip:
+    """Save quotes."""
+
     def __init__(self, user, db='quipper', testing=False):
-        """Open a new database connection and build registries"""
+        """Open a new database connection and build registries."""
         self.user = user
         self.db = sqlite3.connect(db)
         self.quotes_table = 'quotes'
@@ -16,35 +19,33 @@ class Quip:
             self.photos_table += '_test'
 
     def search_quote_by_tag(self, tag, room, photo=False):
-        """Search for a quote
-        """
+        """Search for a quote."""
         with sqlite3.connect('quipper') as conn:
             c = conn.cursor()
             db = self.quotes_table
             if photo:
                 db = self.photos_table
             tag = "%%%{0}%%%".format(tag)
-            print("select * from {0} where tag like {1} and room={2}".format(db,
-                tag, room))
-            c.execute('select * from {} where tag like ? and room=?'.format(db),
-                    (tag, room))
+            print("select * from {0} where tag like {1} and "
+                  "room={2}".format(db, tag, room))
+            c.execute('select * from {} where tag like ? and '
+                      'room=?'.format(db), (tag, room))
             quote = c.fetchone()
             if photo:
                 caption = quote[5]
                 photo_id = quote[4]
                 return caption, photo_id
-        return self.compile_quote(quote, user)
+        return self.compile_quote(quote)
 
     def search_quote_by_id(self, id, room, photo=False):
-        """Search for a quote
-        """
+        """Search for a quote."""
         with sqlite3.connect('quipper') as conn:
             c = conn.cursor()
             db = self.quotes_table
             if photo:
                 db = self.photos_table
-            c.execute('select * from {} where x=? and room=?'.format(db), (id,
-                room))
+            c.execute('select * from {} where x=? and room=?'.format(db),
+                      (id, room))
             quote = c.fetchone()
             if photo:
                 caption = quote[5]
@@ -53,16 +54,15 @@ class Quip:
         return self.compile_quote(quote)
 
     def search_quote(self, search_str, room, photo=False):
-        """Search for a quote
-        """
+        """Search for a quote."""
         s_str = "%%%{0}%%%".format(search_str)
         with sqlite3.connect('quipper') as conn:
             db = self.quotes_table
             if photo:
                 db = self.photos_table
             c = conn.cursor()
-            c.execute('select * from {} where quote like ? and room=? order by date desc'
-                    ' limit 1'.format(db), (s_str, room))
+            c.execute('select * from {} where quote like ? and room=? order '
+                      'by date desc limit 1'.format(db), (s_str, room))
             quote = c.fetchone()
             if photo:
                 caption = quote[5]
@@ -71,8 +71,7 @@ class Quip:
         return self.compile_quote(quote)
 
     def get_random_quote(self, room, user=None, photo=False):
-        """Get random quote from global or from user
-        """
+        """Get random quote from global or from user."""
         with sqlite3.connect('quipper') as conn:
             c = conn.cursor()
             db = self.quotes_table
@@ -87,8 +86,7 @@ class Quip:
         return self.compile_quote(quote, user)
 
     def delete_quote_by_id(self, bot, update):
-        """Delete a quote from telegram
-        """
+        """Delete a quote from telegram."""
         room = update.message.chat.id
         db = self.quotes_table
         id = update.message.from_user.id
@@ -100,17 +98,17 @@ class Quip:
             with sqlite3.connect('quipper') as conn:
                 c = conn.cursor()
                 c.execute('delete from {0} where x=? and room=?'.format(db),
-                        (quote_id, room))
+                          (quote_id, room))
                 conn.commit()
-                bot.sendMessage(update.message.chat_id, text="I deleted the quote "
-                        " with ID {}".format(quote_id))
+                bot.sendMessage(update.message.chat_id,
+                                text="I deleted the quote with ID "
+                                "{}".format(quote_id))
         except Exception as e:
-            bot.sendMessage(update.message.chat_id, text="I couldn't delete the"
-                    " quote. ({})".format(e))
+            bot.sendMessage(update.message.chat_id, text="I couldn't delete "
+                            "the quote. ({})".format(e))
 
     def get_random_user_quote(self, user, room, photo=False):
-        """Get random quote from a user
-        """
+        """Get random quote from a user."""
         db = self.quotes_table
         if photo:
             db = self.photos_table
@@ -119,7 +117,7 @@ class Quip:
             c.execute('select * from users where username=?', (user,))
             id = c.fetchone()[0]
             c.execute('select * from {} where owner=? and room=? order by date'
-                    ' desc'.format(db) , (id, room))
+                      ' desc'.format(db), (id, room))
             quote = random.choice(c.fetchall())
             if photo:
                 caption = quote[5]
@@ -128,8 +126,7 @@ class Quip:
         return self.compile_quote(quote, user)
 
     def get_last_quote(self, user, room, photo=False):
-        """Get last quote from a user
-        """
+        """Get last quote from a user."""
         db = self.quotes_table
         if photo:
             db = self.photos_table
@@ -137,8 +134,8 @@ class Quip:
             c = conn.cursor()
             c.execute('select * from users where username=?', (user,))
             id = c.fetchone()[0]
-            c.execute('select * from {} where owner=? and room=? order by date desc'
-                    ' limit 1'.format(db), (id, room))
+            c.execute('select * from {} where owner=? and room=? order by '
+                      'date desc limit 1'.format(db), (id, room))
             quote = c.fetchone()
             if photo:
                 caption = quote[5]
@@ -147,6 +144,7 @@ class Quip:
         return self.compile_quote(quote, user)
 
     def compile_quote(self, quote, user=None):
+        """Compile quote."""
         quote_id = quote[0]
         if not user:
             with sqlite3.connect('quipper') as conn:
@@ -155,53 +153,59 @@ class Quip:
                 user = c.fetchone()[1]
         quote_date = quote[1]
         quote_text = quote[3]
-        return "[{0}]At {1} @{2} said ``{3}''".format(quote_id, quote_date, user,
-                quote_text)
+        return "[{0}]At {1} @{2} said ``{3}''".format(
+            quote_id, quote_date, user, quote_text)
 
     def get_quote(self, bot, update):
-        """Get a quote based on the request
-        """
+        """Get a quote based on the request."""
         room = update.message.chat.id
         line_s = update.message.text.split()
 
-        if len(line_s)<=1:
+        if len(line_s) <= 1:
             bot.sendMessage(update.message.chat_id,
-                    text=self.get_random_quote(room))
+                            text=self.get_random_quote(room))
         elif line_s[1] == '-l':
             user = line_s[2].strip('@').strip()
-            bot.sendMessage(update.message.chat_id, text=self.get_last_quote(user, room))
+            bot.sendMessage(
+                update.message.chat_id,
+                text=self.get_last_quote(
+                    user,
+                    room))
         elif line_s[1] == '-s':
             search_str = ' '.join(line_s[2:])
-            bot.sendMessage(update.message.chat_id, text=self.search_quote(search_str,
-                room))
+            bot.sendMessage(update.message.chat_id,
+                            text=self.search_quote(search_str, room))
         elif line_s[1] == '-i':
             id = line_s[2]
-            bot.sendMessage(update.message.chat_id, text=self.search_quote_by_id(id, room))
+            bot.sendMessage(
+                update.message.chat_id,
+                text=self.search_quote_by_id(
+                    id,
+                    room))
         else:
             user = line_s[1].strip('@').strip()
             bot.sendMessage(update.message.chat_id,
-                    text=self.get_random_user_quote(user, room))
+                            text=self.get_random_user_quote(user, room))
 
     def quipper_forward(self, bot, update):
-        """Quip store
-        """
+        """Quip store."""
         db = self.quotes_table
         quip = update.message.text
+        room = update.message.chat.id
         owner = update.message.forward_from.id
         quote_date = update.message.forward_date
         username = update.message.forward_from.username
         with sqlite3.connect('quipper') as conn:
             c = conn.cursor()
             self.user.check_user_exist(owner, username)
-            print('insert into {0} (date, owner, quote, room) values ({1}, {2},'
-                    ' {3}, {4})', (db, quote_date, owner, quip, room))
-            c.execute('insert into {0} (date, owner, quote, room) values (?, ?,'
-                    ' ?, ?)'.format(db), (quote_date, owner, quip, room))
+            print('insert into {0} (date, owner, quote, room) values ({1}, '
+                  '{2}, {3}, {4})', (db, quote_date, owner, quip, room))
+            c.execute('insert into {0} (date, owner, quote, room) values (?, '
+                      '?, ?, ?)'.format(db), (quote_date, owner, quip, room))
             conn.commit()
 
     def quipper(self, bot, update):
-        """Quip store
-        """
+        """Quip store."""
         db = self.quotes_table
         quip = update.message.reply_to_message.text
         owner = update.message.reply_to_message.from_user.id
@@ -211,14 +215,14 @@ class Quip:
         with sqlite3.connect('quipper') as conn:
             c = conn.cursor()
             self.user.check_user_exist(owner, username)
-            print('insert into {0} (date, owner, quote, room) values ({1}, {2},'
-                    ' {3}, {4})', (quote_date, owner, quip, room))
-            c.execute('insert into {0} (date, owner, quote, room) values (?, ?,'
-                    ' ?, ?)'.format(db), (quote_date, owner, quip, room))
+            print('insert into {0} (date, owner, quote, room) values ({1}, '
+                  '{2}, {3}, {4})', (quote_date, owner, quip, room))
+            c.execute('insert into {0} (date, owner, quote, room) values (?, '
+                      '?, ?, ?)'.format(db), (quote_date, owner, quip, room))
             conn.commit()
 
     def seve_pikjur(self, bot, update):
-        """Save a picture and returns it's identifier for recallability"""
+        """Save a picture and returns it's identifier for recallability."""
         # update.message.reply_to_message
 
         db = self.photos_table
@@ -233,47 +237,47 @@ class Quip:
             c = conn.cursor()
             self.user.check_user_exist(owner, username)
             print('insert into {} (date, owner, quote, tag, photo_id) values'
-                    ' ({},' ' {}, {}, {})', (db, quote_date, owner, quip, text,
-                    photo_id, room))
-            c.execute('insert into {} (date, owner, quote, tag, photo_id, room)'
-                    ' values (?, ?, ?, ?, ?, ?)'.format(db), (quote_date, owner,
-                        quip, text, photo_id, room))
+                  ' ({},' ' {}, {}, {})', (db, quote_date, owner, quip, text,
+                                           photo_id, room))
+            c.execute('insert into {} (date, owner, quote, tag, photo_id, '
+                      'room) values (?, ?, ?, ?, ?, ?)'.format(db),
+                      (quote_date, owner, quip, text, photo_id, room))
             conn.commit()
             c.execute('select * from {} where room=? order by x desc limit'
-                    ' 1'.format(db), (room,))
+                      ' 1'.format(db), (room,))
         bot.sendMessage(update.message.chat_id, c.fetchall()[0])
 
     def get_pikjur(self, bot, update):
+        """Get picture from database."""
         room = update.message.chat.id
         line_s = update.message.text.split()
 
-        if len(line_s)<=1:
+        if len(line_s) <= 1:
             photo = self.get_random_quote(room, photo=True)
             bot.sendPhoto(update.message.chat_id, photo=photo[1],
-                    caption=photo[0])
+                          caption=photo[0])
         elif line_s[1] == '-l':
             user = line_s[2].strip('@').strip()
             photo = self.get_last_quote(user, room, photo=True)
             bot.sendPhoto(update.message.chat_id, photo=photo[1],
-                    caption=photo[0])
+                          caption=photo[0])
         elif line_s[1] == '-s':
             search_str = ' '.join(line_s[2:])
             photo = self.search_quote(search_str, room, photo=True)
             bot.sendPhoto(update.message.chat_id, photo=photo[1],
-                    caption=photo[0])
+                          caption=photo[0])
         elif line_s[1] == '-i':
             id = line_s[2]
             photo = self.search_quote_by_id(id, room, photo=True)
             bot.sendPhoto(update.message.chat_id, photo=photo[1],
-                    caption=photo[0])
+                          caption=photo[0])
         elif line_s[1] == '-t':
             tag = ' '.join(line_s[2:])
             photo = self.search_quote_by_tag(tag, room, photo=True)
             bot.sendPhoto(update.message.chat_id, photo=photo[1],
-                    caption=photo[0])
+                          caption=photo[0])
         else:
             user = line_s[1].strip('@').strip()
             photo = self.get_random_user_quote(user, room, photo=True)
             bot.sendPhoto(update.message.chat_id,
-                    photo=photo[1], caption=photo[0])
-
+                          photo=photo[1], caption=photo[0])
