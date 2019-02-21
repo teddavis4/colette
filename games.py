@@ -33,9 +33,11 @@ class Games:
     def emote(self, bot, update):
         """Do an emote."""
         room = update.message.chat.id
-        text = ' '.join(update.message.text.split()[1:])
         username = update.message.from_user.username
-        bot.sendMessage(room, text=f"<i>@{username} {text}</i>",
+        text = ' '.join(update.message.text.split()[1:])
+        if not text.startswith("'") and not text.startswith("‘"):
+            text = f" {text}"
+        bot.sendMessage(room, text=f"<i>@{username}{text}</i>",
                         parse_mode=ParseMode.HTML)
 
 
