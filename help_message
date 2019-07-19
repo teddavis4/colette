@@ -5,36 +5,36 @@ I can also do a lot of stuff like save messages as quotes, save pictures, search
 
 Commands:
 
-Google searches
+**Google searches**
 
-`/google search term`
+You can do quick Google searches by sending "/google search term" (minus quotes) and I'll find the most relevant Google result and send the link to the chat.
 
-You can do quick Google searches by sending `/google search term` and I'll try to find the most relevant Google result and send the link to the chat. If nothing matches, I'll just send the results page. Exercise your Google-fu!
+Example: /google miserable failure
 
-Saving messages
+**Saving and retrieving messages**
 
-```/quote 
-/getquote
-   -l username
-   -s text```
+You can save quotes in the chat by replying to the message with the command /quote or /quip. This will save the quote to my internal database. There is no confirmation for this command
 
-You can save quotes in the chat by replying to the message with the command `/quote`. This will save the quote to my internal database. You can then retrieve saved quotes by using the `/getquote` command. `/getquote` with no arguments will return a random quote, adding `-l username` will return the most recently saved quote for the user specified. You can also search for quotes by adding -s and a search term and I will search for a quote that contains the word or words (Example /getquote -s funny). You can also use `-s username` to return quotes from a specific user. If no quotes exist with the specified words, I won't say anything.
+Examples: /quote, /quip
 
-Saving pictures
+ You can retrieve saved messages by using /getquote. This command with no arguments will return a random quote. Adding -l <username> will return the most recently saved quote for the user specified. Adding -s + search term and I will search for a quote that contains the word or words. You can also use -s username to return quotes from a specific user. If no quotes exist with the specified words, I won't say anything.
+ 
+ Examples: /getquote, /getquote -s stuff, /getquote -l username
 
-```/seve
-   tags
+**Saving pictures**
 
-/git
-   -i ID#
-   -t tag```
+ Reply to a picture with the command `/seve` and I'll save it. I will send a confirmation when I save the photo with the ID#. If you want to tag the photo, add tags after the command.
+ 
+ Examples: /seve, /seve cool pic
 
-I can save pictures as well. Reply to a picture with the command `/seve` and I'll make a note of the picture ID and save it for later. If you want to tag the photo, add tags after the command like `/seve cool picture`. When you want to retrieve a picture, you can send `/git`, which I'll respond to with a random picture from my database. If you want to see a specific picture, you can use the `/git -t tags` string for return photos with specific tags or the `/git -i ##` where the ## is the ID number of the picture, which can be seen in my original seve confirmation message.
+When you want to retrieve a picture, you can send /git, which I'll respond to with a random picture from my database. If you want to see a specific picture, you can use the -t argument with a tag from the original seve or the -i <##> where the ## is the ID number of the picture, which can be seen in my original seve confirmation message.
 
-Getting stock quotes
+Examples: /git, /git -t cool, /git -i 47
 
-```/stock
-  ticker```
+**Emotes**
 
+Sending a message starting with a single lowercase <e> will echo a message in the format <@yourusername message>
 
-I'll can return current stock prices with the command `/stock TICKER` where ticker is replaced with a ticker ID, such as FB, AAPL, etc. These prices are current market and do not reflect after-hours or pre-market trading.
+Example: e does a thing
+Result: @username does a thing
+
