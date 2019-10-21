@@ -16,7 +16,7 @@ selenium==2.53.6
 simplejson==3.11.1
 six==1.10.0
 Unidecode==0.4.21
-urllib3==1.20
+urllib3==1.24.2
 vcrpy==1.11.1
 wrapt==1.10.11
 yahoo-finance==1.4.0
